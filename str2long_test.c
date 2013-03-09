@@ -4,6 +4,18 @@ int error;
 
 typedef long (* fp)(const char *);
 
+/*
+ * in-memory testcase for speed test
+ *
+ * we want it to be cache line sized
+ */
+struct testcase {
+  long int_result;
+  int error_result;
+#define TEST_STR_LEN 52
+  char str[TEST_STR_LEN];
+};
+
 struct fps {
   fp func;
   const char *name;
@@ -136,6 +148,8 @@ static void inc (char *s)
 }
 
 int main (int argc, char *argv[]) {
+
+  assert (sizeof(struct testcase) == 64);
 
   if (argc == 2 && strcmp (argv[1], "-v") == 0) verbose = 1;
 
