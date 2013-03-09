@@ -11,6 +11,7 @@ struct fps {
 };
 
 static const struct fps funcs[] = {
+  { str2long_john, "john", true },
   { str2long_pascal, "pascal", true },
   { str2long_toby, "toby", true },
   { str2long_bernd, "bernd", false }, // signed overflow

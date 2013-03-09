@@ -11,6 +11,7 @@
 
 extern int error;
 
+long str2long_john (const char *);
 long str2long_bernd (const char *);
 long str2long_francois (const char *);
 long str2long_francois_2 (const char *);
