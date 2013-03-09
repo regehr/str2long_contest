@@ -4,7 +4,7 @@
 CC=gcc 
 CFLAGS=-O3 -Wall 
 
-OBJS = 	daniel.o bernd.o pascal.o john.o toby.o \
+OBJS = 	daniel.o bernd.o pascal.o toby.o \
 	patrick.o francois_2.o yolanpa.o phil.o mikael.o \
 	magnus.o magnus_2.o ryan.o matthew.o stefan.o \
 	david.o matthew_2.o mats.o peter.o thomas.o \
