@@ -16,7 +16,7 @@ struct testcase {
   char str[TEST_STR_LEN];
 };
 
-#define REPS 5
+#define REPS 8
 
 struct fps {
   fp func;
@@ -348,12 +348,15 @@ int main (int argc, char *argv[]) {
   printf ("tested:\n");
   for (i=0; funcs[i].func; i++) {
     if (funcs[i].works) {
-      printf ("  %s ", funcs[i].name);
       int j;
+      double min = 1e22;
+      double max = 0;
       for (j=0; j<REPS; j++) {
-	printf ("%lf ", funcs[i].times[j] / n_tests);
+	double t = funcs[i].times[j] / n_tests;
+	if (t<min) min = t;
+	if (t>max) max = t;
       }
-      printf ("\n");
+      printf ("  %lf %lf %s\n", min, max, funcs[i].name);
     }
   }
 
