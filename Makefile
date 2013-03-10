@@ -1,8 +1,8 @@
-CC=clang -fsanitize=integer -fno-sanitize=unsigned-integer-overflow
-CFLAGS=-O3 -Wall -Wextra 
+#CC=clang # -fsanitize=integer -fno-sanitize=unsigned-integer-overflow
+#CFLAGS=-Os -Wall -m32
 
-#CC=gcc 
-#CFLAGS=-O3 -Wall 
+CC=gcc 
+CFLAGS=-O3 -Wall 
 
 OBJS = 	daniel.o bernd.o pascal.o toby.o john.o \
 	patrick.o francois_2.o yolanpa.o phil.o mikael.o \
@@ -25,7 +25,7 @@ OBJS = 	daniel.o bernd.o pascal.o toby.o john.o \
 all: str2long_test
 
 str2long_test: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o str2long_test -lm
+	$(CC) $(CFLAGS) $(OBJS) -o str2long_test -lm -lrt
 
 clean:
 	rm -f *.o str2long_test

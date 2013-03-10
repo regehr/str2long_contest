@@ -10,19 +10,22 @@ typedef long (* fp)(const char *);
  * we want it to be cache line sized
  */
 struct testcase {
-  long int_result;
-  int error_result;
-#define TEST_STR_LEN 52
+  long result;
+  int error;
+#define TEST_STR_LEN (64-sizeof(int)-sizeof(long))
   char str[TEST_STR_LEN];
 };
+
+#define REPS 5
 
 struct fps {
   fp func;
   const char *name;
   bool works;
+  double times[REPS];
 };
 
-static const struct fps funcs[] = {
+static struct fps funcs[] = {
   { str2long_john, "john", true },
   { str2long_pascal, "pascal", true },
   { str2long_toby, "toby", true },
@@ -108,34 +111,52 @@ static const struct fps funcs[] = {
 static long n_tests;
 static int verbose = 0;
 
-static void test (const char *s)
+#define MAX_TESTS 11000000
+struct testcase *tests;
+
+static void generate_test (const char *s)
 {
-  // stupid compiler can't figure out these are initialized in the loop...
-  long first_result = -1;
-  int first_error = 1000;
-  int i;
-  if (verbose) fprintf (stderr, "\n'%s'\n", s);
-  for (i=0; funcs[i].func; i++) {
+  assert (n_tests < MAX_TESTS);
+  assert (strlen(s) < TEST_STR_LEN);
+  strcpy (tests[n_tests].str, s);
+  error = 0;
+  tests[n_tests].result = str2long_john (s);
+  tests[n_tests].error = error;
+  n_tests++;
+}
 
-    if (!funcs[i].works) continue;
+static double subtimes (struct timespec stop, struct timespec start)
+{
+  double stopd = (1000000000.0 * stop.tv_sec) + stop.tv_nsec;
+  double startd = (1000000000.0 * start.tv_sec) + start.tv_nsec;
+  return stopd - startd;
+}
 
-    error = 0;
-    long result = (funcs[i].func)(s);
-    if (verbose && funcs[i].works) {
-      fprintf (stderr, "%s : result = %ld, error = %d\n", funcs[i].name, result, error);
-    }
-    if (i==0) {
-      assert (funcs[i].works);
-      first_result = result;
-      first_error = error;
-    } else {
-      assert (!funcs[i].works ||
-	      ((first_error == 0 && error == 0 && first_result == result) ||
-	       (first_error != 0 && error != 0))
-	      );
+static void run_tests (void)
+{
+  int rep;
+  for (rep=0; rep<REPS; rep++) {
+    int i;
+    for (i=0; funcs[i].func; i++) {
+      if (!funcs[i].works) continue;
+      struct timespec start;
+      int res = clock_gettime (CLOCK_MONOTONIC, &start);
+      assert (res==0);
+      int j;
+      for (j=0; j<n_tests; j++) {
+	error = 0;
+	long result = (funcs[i].func)(tests[j].str);
+	assert (!funcs[i].works ||
+		((error == 0 && tests[j].error == 0 && result == tests[j].result) ||
+		 (error != 0 && tests[j].error != 0))
+		);
+      }
+      struct timespec stop;
+      res = clock_gettime (CLOCK_MONOTONIC, &stop);
+      assert (res==0);
+      funcs[i].times[rep] = subtimes (stop, start);
     }
   }
-  n_tests++;
 }
 
 static void inc (char *s)
@@ -159,78 +180,80 @@ int main (int argc, char *argv[]) {
   if (argc == 2 && strcmp (argv[1], "-v") == 0) verbose = 1;
 
   n_tests = 0;
+  tests = (struct testcase *) malloc (MAX_TESTS * sizeof (struct testcase));
+  assert (tests);
 
 #if 1
-  test ("");
-  test ("-");
-  test ("0");
-  test ("-0");
-  test ("1");
-  test ("2");
-  test ("12");
-  test ("-12");
-  test ("3333");
-  test ("-3333");
-  test ("111111113331111");
-  test ("-111133311111111");
-  test ("-805");
-  test ("000000000000000000000000000001");
-  test ("000000000000000000010000000001");
-  test ("100000000000000000010000000001");
+  generate_test ("");
+  generate_test ("-");
+  generate_test ("0");
+  generate_test ("-0");
+  generate_test ("1");
+  generate_test ("2");
+  generate_test ("12");
+  generate_test ("-12");
+  generate_test ("3333");
+  generate_test ("-3333");
+  generate_test ("111111113331111");
+  generate_test ("-111133311111111");
+  generate_test ("-805");
+  generate_test ("000000000000000000000000000001");
+  generate_test ("000000000000000000010000000001");
+  generate_test ("100000000000000000010000000001");
 
-  test ("1000000000000000001000000001");
-  test ("100000000000000001000000001");
-  test ("10000000000000001000000001");
-  test ("1000000000000001000000001");
-  test ("100000000000001000000001");
-  test ("10000000000001000000001");
-  test ("1000000000001000000001");
-  test ("100000000001000000001");
-  test ("10000000001000000001");
-  test ("1000000001000000001");
-  test ("100000001000000001");
-  test ("10000001000000001");
-  test ("1000001000000001");
-  test ("100001000000001");
-  test ("10001000000001");
-  test ("1001000000001");
-  test ("101000000001");
-  test ("11000000001");
-  test ("1000000001");
+  generate_test ("1000000000000000001000000001");
+  generate_test ("100000000000000001000000001");
+  generate_test ("10000000000000001000000001");
+  generate_test ("1000000000000001000000001");
+  generate_test ("100000000000001000000001");
+  generate_test ("10000000000001000000001");
+  generate_test ("1000000000001000000001");
+  generate_test ("100000000001000000001");
+  generate_test ("10000000001000000001");
+  generate_test ("1000000001000000001");
+  generate_test ("100000001000000001");
+  generate_test ("10000001000000001");
+  generate_test ("1000001000000001");
+  generate_test ("100001000000001");
+  generate_test ("10001000000001");
+  generate_test ("1001000000001");
+  generate_test ("101000000001");
+  generate_test ("11000000001");
+  generate_test ("1000000001");
 
-  test ("0000000000000000001000000001");
-  test ("000000000000000001000000001");
-  test ("00000000000000001000000001");
-  test ("0000000000000001000000001");
-  test ("000000000000001000000001");
-  test ("00000000000001000000001");
-  test ("0000000000001000000001");
-  test ("000000000001000000001");
-  test ("00000000001000000001");
-  test ("0000000001000000001");
-  test ("000000001000000001");
-  test ("00000001000000001");
-  test ("0000001000000001");
-  test ("000001000000001");
-  test ("00001000000001");
-  test ("0001000000001");
-  test ("001000000001");
-  test ("01000000001");
-  test ("1000000001");
+  generate_test ("0000000000000000001000000001");
+  generate_test ("000000000000000001000000001");
+  generate_test ("00000000000000001000000001");
+  generate_test ("0000000000000001000000001");
+  generate_test ("000000000000001000000001");
+  generate_test ("00000000000001000000001");
+  generate_test ("0000000000001000000001");
+  generate_test ("000000000001000000001");
+  generate_test ("00000000001000000001");
+  generate_test ("0000000001000000001");
+  generate_test ("000000001000000001");
+  generate_test ("00000001000000001");
+  generate_test ("0000001000000001");
+  generate_test ("000001000000001");
+  generate_test ("00001000000001");
+  generate_test ("0001000000001");
+  generate_test ("001000000001");
+  generate_test ("01000000001");
+  generate_test ("1000000001");
 
-  test ("9223372036854775805");
-  test ("9223372036854775806");
-  test ("9223372036854775807");
-  test ("9223372036854775808");
-  test ("9223372036854775809");
-  test ("9223372036854775810");
+  generate_test ("9223372036854775805");
+  generate_test ("9223372036854775806");
+  generate_test ("9223372036854775807");
+  generate_test ("9223372036854775808");
+  generate_test ("9223372036854775809");
+  generate_test ("9223372036854775810");
 
-  test ("-9223372036854775805");
-  test ("-9223372036854775806");
-  test ("-9223372036854775807");
-  test ("-9223372036854775808");
-  test ("-9223372036854775809");
-  test ("-9223372036854775810");
+  generate_test ("-9223372036854775805");
+  generate_test ("-9223372036854775806");
+  generate_test ("-9223372036854775807");
+  generate_test ("-9223372036854775808");
+  generate_test ("-9223372036854775809");
+  generate_test ("-9223372036854775810");
 #endif
 
 #define RANGE 100000
@@ -242,7 +265,7 @@ int main (int argc, char *argv[]) {
     sprintf (str, "%030ld", l);
     int i;
     for (i=0; i<(RANGE*2); i++) {
-      test (str);
+      generate_test (str);
       inc (str);
     }
   }
@@ -255,7 +278,7 @@ int main (int argc, char *argv[]) {
     sprintf (str, "%030ld", l);
     int i;
     for (i=0; i<(RANGE*2); i++) {
-      test (str);
+      generate_test (str);
       inc (str);
     }
   }
@@ -268,7 +291,7 @@ int main (int argc, char *argv[]) {
     sprintf (str, "%030ld", l);
     int i;
     for (i=0; i<RANGE; i++) {
-      test (str);
+      generate_test (str);
       inc (str);
     }
   }
@@ -281,7 +304,7 @@ int main (int argc, char *argv[]) {
     sprintf (str, "-%030ld", l);
     int i;
     for (i=0; i<RANGE; i++) {
-      test (str);
+      generate_test (str);
       inc (str);
     }
   }
@@ -308,12 +331,15 @@ int main (int argc, char *argv[]) {
 	str[rand()%l] = rand()%256;
       }
       str[pos] = 0;
-      test (str);
+      generate_test (str);
     }
   }
 #endif
 
-  printf ("%ld tests succeeded\n", n_tests);
+  printf ("generated %ld tests\n", n_tests);
+
+  run_tests();
+
   int i;
   printf ("ran, but didn't test:\n");
   for (i=0; funcs[i].func; i++) {
@@ -321,7 +347,14 @@ int main (int argc, char *argv[]) {
   }
   printf ("tested:\n");
   for (i=0; funcs[i].func; i++) {
-    if (funcs[i].works) printf ("  %s\n", funcs[i].name);
+    if (funcs[i].works) {
+      printf ("  %s ", funcs[i].name);
+      int j;
+      for (j=0; j<REPS; j++) {
+	printf ("%lf ", funcs[i].times[j] / n_tests);
+      }
+      printf ("\n");
+    }
   }
 
   return 0;
