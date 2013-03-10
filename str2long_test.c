@@ -99,7 +99,9 @@ static const struct fps funcs[] = {
   { str2long_jonathan, "jonathan", false }, // incorrect output
   { str2long_dario, "dario", false }, // incorrect output in 32-bit mode
   { str2long_ben, "ben", true },
-   
+  { str2long_davide, "davide", true },   
+  { str2long_sidney, "sidney", true },   
+  { str2long_guillaume, "guillaume", false }, // incorrect output
   { NULL, NULL, false },
 };
 
@@ -114,6 +116,9 @@ static void test (const char *s)
   int i;
   if (verbose) fprintf (stderr, "\n'%s'\n", s);
   for (i=0; funcs[i].func; i++) {
+
+    if (!funcs[i].works) continue;
+
     error = 0;
     long result = (funcs[i].func)(s);
     if (verbose && funcs[i].works) {

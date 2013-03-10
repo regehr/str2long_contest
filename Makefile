@@ -1,8 +1,8 @@
-#CC=clang -fsanitize=integer -fno-sanitize=unsigned-integer-overflow
-#CFLAGS=-O3 -Wall -Wextra 
+CC=clang -fsanitize=integer -fno-sanitize=unsigned-integer-overflow
+CFLAGS=-O3 -Wall -Wextra 
 
-CC=gcc 
-CFLAGS=-O3 -Wall 
+#CC=gcc 
+#CFLAGS=-O3 -Wall 
 
 OBJS = 	daniel.o bernd.o pascal.o toby.o john.o \
 	patrick.o francois_2.o yolanpa.o phil.o mikael.o \
@@ -19,7 +19,7 @@ OBJS = 	daniel.o bernd.o pascal.o toby.o john.o \
 	jonathan.o yang_2.o andrewh_3.o davidl_2.o \
 	adam_3.o ken_3.o dario.o dokoto_2.o gedare_2.o \
 	ben.o markus_2.o matthew_3.o robert_2.o ryanf_2.o \
-	ken_4.o adam_4.o \
+	ken_4.o adam_4.o davide.o sidney.o guillaume.o \
 	str2long_test.o 
 
 all: str2long_test
