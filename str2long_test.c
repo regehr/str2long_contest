@@ -4,15 +4,15 @@ int error;
 
 typedef long (* fp)(const char *);
 
+#define CACHE_LINE_SIZE 64
+#define TEST_STR_LEN (CACHE_LINE_SIZE-sizeof(int)-sizeof(long))
+
 /*
  * in-memory testcase for speed test
- *
- * we want it to be cache line sized
  */
 struct testcase {
   long result;
   int error;
-#define TEST_STR_LEN (64-sizeof(int)-sizeof(long))
   char str[TEST_STR_LEN];
 };
 
@@ -26,9 +26,9 @@ struct fps {
 };
 
 static struct fps funcs[] = {
-  { str2long_john, "john", true },
   { str2long_pascal, "pascal", true },
-  { str2long_toby, "toby", true },
+  { str2long_john, "john", false },
+  { str2long_toby, "toby", false }, // infinite loop when strlen > INT_MAX
   { str2long_bernd, "bernd", false }, // signed overflow
   { str2long_bernd_2, "bernd_2", true },
   { str2long_francois, "francois", false }, // signed overflow
@@ -79,7 +79,7 @@ static struct fps funcs[] = {
   { str2long_ken, "ken", false }, // incorrect output
   { str2long_ken_2, "ken_2", false }, // signed overflows
   { str2long_ken_3, "ken_3", false }, // signed overflows 
-  { str2long_ken_4, "ken_4", true }, 
+  { str2long_ken_4, "ken_4", false }, // fails for strlen > INT_MAX 
   { str2long_davidl, "davidl", true },
   { str2long_davidl_2, "davidl_2", true },
   { str2long_bastian, "bastian", true },
@@ -97,7 +97,7 @@ static struct fps funcs[] = {
   { str2long_gedare_2, "gedare_2", false }, // incorrect output
   { str2long_markus, "markus", false }, // incorrect output
   { str2long_markus_2, "markus_2", false }, // incorrect output 
-  { str2long_tennessee, "tennessee", true },
+  { str2long_tennessee, "tennessee", false }, // fails for strlen > INT_MAX
   { str2long_greg, "greg", true },
   { str2long_jonathan, "jonathan", false }, // incorrect output
   { str2long_dario, "dario", false }, // incorrect output in 32-bit mode
@@ -121,7 +121,7 @@ static void generate_test (const char *s)
   assert (strlen(s) < TEST_STR_LEN);
   strcpy (tests[n_tests].str, s);
   error = 0;
-  tests[n_tests].result = str2long_john (s);
+  tests[n_tests].result = str2long_pascal (s);
   tests[n_tests].error = error;
   n_tests++;
 }
@@ -176,7 +176,7 @@ static void inc (char *s)
 
 int main (int argc, char *argv[]) {
 
-  assert (sizeof(struct testcase) == 64);
+  assert (sizeof(struct testcase) == CACHE_LINE_SIZE);
 
   if (argc == 2 && strcmp (argv[1], "-v") == 0) verbose = 1;
 
@@ -184,6 +184,28 @@ int main (int argc, char *argv[]) {
   tests = (struct testcase *) malloc (MAX_TESTS * sizeof (struct testcase));
   assert (tests);
 
+#ifdef HUGE_TEST
+  {
+#define L (9L * 1024 * 1024 * 1024)
+    char *s = (char *) malloc (L);
+    assert (s);
+    long i;
+    for (i=0; i<L; i++) {
+      s[i] = '0';
+    }
+    s[0] = '-';
+    s[L-1] = 0;
+    s[L-2] = '7';
+    for (i=0; funcs[i].func; i++) {
+      if (!funcs[i].works) continue;
+      error = 0;
+      long result = (funcs[i].func)(s);
+      printf ("%s : %ld %d\n", funcs[i].name, result, error);
+    }
+  }
+  return 0;
+#endif
+  
 #if 1
   generate_test ("");
   generate_test ("-");
@@ -201,7 +223,6 @@ int main (int argc, char *argv[]) {
   generate_test ("000000000000000000000000000001");
   generate_test ("000000000000000000010000000001");
   generate_test ("100000000000000000010000000001");
-
   generate_test ("1000000000000000001000000001");
   generate_test ("100000000000000001000000001");
   generate_test ("10000000000000001000000001");
@@ -255,6 +276,13 @@ int main (int argc, char *argv[]) {
   generate_test ("-9223372036854775808");
   generate_test ("-9223372036854775809");
   generate_test ("-9223372036854775810");
+#endif
+
+#if 0
+  generate_test ("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001");
+  generate_test ("-000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001");
+  generate_test ("0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000099999999999999999999999999999999999999999999999");
+  generate_test ("-0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009999999999999999999999999999999");
 #endif
 
 #define RANGE 100000
