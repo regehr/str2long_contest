@@ -2,7 +2,7 @@ CC=clang # -fsanitize=integer -fno-sanitize=unsigned-integer-overflow
 CFLAGS=-O3 -Wall 
 
 #CC=gcc 
-#CFLAGS=-O3 -Wall 
+#CFLAGS=-O -Wall -g
 
 OBJS = 	daniel.o bernd.o pascal.o toby.o john.o \
 	patrick.o francois_2.o yolanpa.o phil.o mikael.o \
