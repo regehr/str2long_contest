@@ -2,19 +2,22 @@
 
 use strict;
 
-my $CFLAGS = "-m32 -w -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables";
+my $CFLAGS = "-w -DNDEBUG -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables";
 
-my @comps = (
-    "gcc-4.4",
-    "gcc-4.5",
-    "gcc-4.6",
-    "gcc-4.7",
-    "/home/regehr/z/compiler-install/gcc-r196703-install/bin/gcc",
+my %comps = (
+    "gcc-4.4" => "gcc-4.4",
+    "gcc-4.5" => "gcc-4.5",
+    "gcc-4.6" => "gcc-4.6",
+    "gcc-4.7" => "gcc-4.7",
+    "/home/regehr/z/compiler-install/gcc-r196703-install/bin/gcc" => "gcc-trunk",
 
-    "/home/regehr/z/clang+llvm-3.0-x86_64-linux-Ubuntu-11_10/bin/clang",
-    "/home/regehr/z/clang+llvm-3.1-x86_64-linux-ubuntu_12.04/bin/clang",
+    "/home/regehr/z/clang+llvm-3.0-x86_64-linux-Ubuntu-11_10/bin/clang" => "clang-3.0",
+    "/home/regehr/z/clang+llvm-3.1-x86_64-linux-ubuntu_12.04/bin/clang" => "clang-3.1",
+    "/home/regehr/z/clang+llvm-3.2-x86_64-linux-ubuntu-12.04/bin/clang" => "clang-3.2",
+    "/home/regehr/z/compiler-install/llvm-r177225-install/bin/clang" => "clang-trunk",
 
-    "/home/regehr/z/compiler-install/llvm-r177225-install/bin/clang",
+    "icc" => "icc-12.0.5",
+    "/opt/intel/bin/icc" => "icc-13.1.0",
     );
 
 my @opts = (
@@ -26,9 +29,7 @@ my @opts = (
     );
 
 my @progs = (
-    "john",
     "pascal",
-    "toby",
     "bernd_2",
     "francois_2",
     "yolanpa",
@@ -52,7 +53,6 @@ my @progs = (
     "jeffrey",
     "yang_2",
     "olivier",
-    "ken_4",
     "davidl",
     "davidl_2",
     "bastian",
@@ -60,22 +60,69 @@ my @progs = (
     "renaud",
     "robert_2",
     "till",
-    "tennessee",
     "greg",
     "ben",
     "davide",
     "sidney",
+    "libc",
     );
 
+my @outfs = ();
+foreach my $comp (keys %comps) {
+    system "rm -f *.o";
+    foreach my $opt (@opts) {
+	my $ofiles = "";
+	foreach my $prog (@progs) {
+	    my $ofile = "${prog}.o";
+	    $ofiles .= "$ofile ";
+	    my $cfile = "${prog}.c";
+	    my $cmd = "$comp $CFLAGS $opt -c $cfile";
+	    system $cmd;
+	}
+	system "$comp $CFLAGS $opt str2long_test.c $ofiles -o str2long_test -lm -lrt";
+	my $outf = "speed-$comps{$comp}$opt.txt";
+	print "$outf\n";
+	push @outfs, $outf;
+	system "./str2long_test > $outf";
+    }
+}
+
+my %fastest;
+my %fastest_comp;
+
+foreach my $outf (@outfs) {
+    open INF, "<$outf" or die;
+    while (my $line = <INF>) {
+	if ($line =~ /([0-9\.]+) (.*)/) {
+	    my $t = $1;
+	    my $who = $2;
+	    if (!defined($fastest{$who}) ||
+		$t < $fastest{$who}) {
+		$fastest{$who} = $t;
+		$fastest_comp{$who} = $outf;
+	    }	    
+	}
+    }
+    close INF;
+}
+
+open OF, "| sort -n >speed.txt" or die;
 foreach my $prog (@progs) {
-    print "$prog: ";
+    print OF "$fastest{$prog} $fastest_comp{$prog} $prog\n";
+}
+close OF;
+
+system "rm -f *.o";
+
+open OF, "| sort -n >size.txt" or die;
+foreach my $prog (@progs) {
     my $smallest = 999999;
     my $small_opt;
     my $small_comp;
-    foreach my $comp (@comps) {
+    my $ofile = "${prog}.o";
+    my $cfile = "${prog}.c";
+    foreach my $comp (keys %comps) {
 	foreach my $opt (@opts) {
-	    my $ofile = "${prog}.o";
-	    my $cfile = "${prog}.c";
 	    my $cmd = "$comp $CFLAGS $opt -c $cfile";
 	    system "rm -f $ofile";
 	    system $cmd;
@@ -95,5 +142,6 @@ foreach my $prog (@progs) {
 	    die unless ($found);
 	}
     }
-    print "$small_comp $small_opt = $smallest\n";
+    print OF "$smallest $small_comp $small_opt $prog\n";
 }
+close OF;

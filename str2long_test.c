@@ -16,7 +16,7 @@ struct testcase {
   char str[TEST_STR_LEN];
 };
 
-#define REPS 8
+#define REPS 10
 
 struct fps {
   fp func;
@@ -27,84 +27,84 @@ struct fps {
 
 static struct fps funcs[] = {
   { str2long_pascal, "pascal", true },
-  { str2long_john, "john", false },
-  { str2long_toby, "toby", false }, // infinite loop when strlen > INT_MAX
-  { str2long_bernd, "bernd", false }, // signed overflow
+  // { str2long_john, "john", false },
+  // { str2long_toby, "toby", false }, // infinite loop when strlen > INT_MAX
+  // { str2long_bernd, "bernd", false }, // signed overflow
   { str2long_bernd_2, "bernd_2", true },
-  { str2long_francois, "francois", false }, // signed overflow
+  // { str2long_francois, "francois", false }, // signed overflow
   { str2long_francois_2, "francois_2", true },
   { str2long_yolanpa, "yolanpa", true },
   { str2long_patrick, "patrick", true },
-  { str2long_daniel, "daniel", false }, // incorrect output
+  // { str2long_daniel, "daniel", false }, // incorrect output
   { str2long_daniel_2, "daniel_2", true }, 
   { str2long_phil, "phil", true },
-  { str2long_mikael, "mikael", false }, // incorrect output
+  // { str2long_mikael, "mikael", false }, // incorrect output
   { str2long_mikael_2, "mikael_2", true },
-  { str2long_magnus, "magnus", false }, // signed overflow
+  // { str2long_magnus, "magnus", false }, // signed overflow
   // { str2long_magnus_2, "magnus_2", false }, // infinite loop due to being developed on MSVC
   { str2long_ryan, "ryan", true },
-  { str2long_matthew, "matthew", false }, // signed overflow
-  { str2long_matthew_2, "matthew_2", false }, // signed overflow
+  // { str2long_matthew, "matthew", false }, // signed overflow
+  // { str2long_matthew_2, "matthew_2", false }, // signed overflow
   { str2long_matthew_3, "matthew_3", true }, 
   { str2long_stefan, "stefan", true },
-  { str2long_david, "david", false }, // incorrect output
+  // { str2long_david, "david", false }, // incorrect output
   { str2long_david_2, "david_2", true },
   { str2long_mats, "mats", true },
   { str2long_peter, "peter", true },
   { str2long_thomas, "thomas", true },
-  { str2long_ryanf, "ryanf", false }, // incorrect output
-  { str2long_ryanf_2, "ryanf_2", false }, // signed overflow
+  // { str2long_ryanf, "ryanf", false }, // incorrect output
+  // { str2long_ryanf_2, "ryanf_2", false }, // signed overflow
   { str2long_mattias, "mattias", true },
-  { str2long_matthewf, "matthewf", false }, // incorrect output
+  // { str2long_matthewf, "matthewf", false }, // incorrect output
   { str2long_matthewf_2, "matthewf_2", true },
   { str2long_kevin, "kevin", true }, 
-  { str2long_chucky, "chucky", false }, // incorrect output
+  // { str2long_chucky, "chucky", false }, // incorrect output
   { str2long_chucky_2, "chucky_2", true },
   { str2long_andrew, "andrew", true },
-  { str2long_tordek, "tordek", false }, // incorrect output
+  // { str2long_tordek, "tordek", false }, // incorrect output
   { str2long_tordek_2, "tordek_2", true }, 
   { str2long_jeffrey, "jeffrey", true },
-  { str2long_andrewh, "andrewh", false }, // incorrect output
-  { str2long_andrewh_2, "andrewh_2", false },  // incorrect output
-  { str2long_andrewh_3, "andrewh_3", false },  // incorrect output
-  { str2long_yang, "yang", false }, // incorrect output in 32-bit mode
+  // { str2long_andrewh, "andrewh", false }, // incorrect output
+  // { str2long_andrewh_2, "andrewh_2", false },  // incorrect output
+  // { str2long_andrewh_3, "andrewh_3", false },  // incorrect output
+  // { str2long_yang, "yang", false }, // incorrect output in 32-bit mode
   { str2long_yang_2, "yang_2", true },
-  { str2long_adam, "adam", false }, // incorrect output
-  { str2long_adam_2, "adam_2", false }, // incorrect output
-  { str2long_adam_3, "adam_3", false }, // incorrect output
-  { str2long_adam_4, "adam_4", false }, // signed overflow
+  // { str2long_adam, "adam", false }, // incorrect output
+  // { str2long_adam_2, "adam_2", false }, // incorrect output
+  // { str2long_adam_3, "adam_3", false }, // incorrect output
+  // { str2long_adam_4, "adam_4", false }, // signed overflow
   { str2long_olivier, "olivier", true },
-  { str2long_ahmed, "ahmed", false }, // incorrect output
-  { str2long_ahmed_2, "ahmed_2", false }, // incorrect output
-  { str2long_ken, "ken", false }, // incorrect output
-  { str2long_ken_2, "ken_2", false }, // signed overflows
-  { str2long_ken_3, "ken_3", false }, // signed overflows 
-  { str2long_ken_4, "ken_4", false }, // fails for strlen > INT_MAX 
+  // { str2long_ahmed, "ahmed", false }, // incorrect output
+  // { str2long_ahmed_2, "ahmed_2", false }, // incorrect output
+  // { str2long_ken, "ken", false }, // incorrect output
+  // { str2long_ken_2, "ken_2", false }, // signed overflows
+  // { str2long_ken_3, "ken_3", false }, // signed overflows 
+  // { str2long_ken_4, "ken_4", false }, // fails for strlen > INT_MAX 
   { str2long_davidl, "davidl", true },
   { str2long_davidl_2, "davidl_2", true },
   { str2long_bastian, "bastian", true },
-  { str2long_ethan, "ethan", false }, // incorrect output
+  // { str2long_ethan, "ethan", false }, // incorrect output
   { str2long_ethan_2, "ethan_2", true }, 
   { str2long_renaud, "renaud", true },
-  { str2long_davec, "davec", false },  // incorrect output
-  { str2long_davec_2, "davec_2", false }, // incorrect output
-  { str2long_dokoto, "dokoto", false }, // incorrect output
-  { str2long_dokoto_2, "dokoto_2", false }, // incorrect outptu 
-  { str2long_robert, "robert", false }, // incorrect output
+  // { str2long_davec, "davec", false },  // incorrect output
+  // { str2long_davec_2, "davec_2", false }, // incorrect output
+  // { str2long_dokoto, "dokoto", false }, // incorrect output
+  // { str2long_dokoto_2, "dokoto_2", false }, // incorrect outptu 
+  // { str2long_robert, "robert", false }, // incorrect output
   { str2long_robert_2, "robert_2", true }, 
   { str2long_till, "till", true },
-  { str2long_gedare, "gedare", false }, // incorrect output
-  { str2long_gedare_2, "gedare_2", false }, // incorrect output
-  { str2long_markus, "markus", false }, // incorrect output
-  { str2long_markus_2, "markus_2", false }, // incorrect output 
-  { str2long_tennessee, "tennessee", false }, // fails for strlen > INT_MAX
+  // { str2long_gedare, "gedare", false }, // incorrect output
+  // { str2long_gedare_2, "gedare_2", false }, // incorrect output
+  // { str2long_markus, "markus", false }, // incorrect output
+  // { str2long_markus_2, "markus_2", false }, // incorrect output 
+  // { str2long_tennessee, "tennessee", false }, // fails for strlen > INT_MAX
   { str2long_greg, "greg", true },
-  { str2long_jonathan, "jonathan", false }, // incorrect output
-  { str2long_dario, "dario", false }, // incorrect output in 32-bit mode
+  // { str2long_jonathan, "jonathan", false }, // incorrect output
+  // { str2long_dario, "dario", false }, // incorrect output in 32-bit mode
   { str2long_ben, "ben", true },
   { str2long_davide, "davide", true },   
   { str2long_sidney, "sidney", true },   
-  { str2long_guillaume, "guillaume", false }, // incorrect output
+  // { str2long_guillaume, "guillaume", false }, // incorrect output
   { str2long_libc, "libc", true },
   { NULL, NULL, false },
 };
@@ -139,21 +139,20 @@ static void run_tests (void)
   for (rep=0; rep<REPS; rep++) {
     int i;
     for (i=0; funcs[i].func; i++) {
-      if (!funcs[i].works) continue;
       struct timespec start;
-      int res = clock_gettime (CLOCK_MONOTONIC, &start);
+      int res = clock_gettime (CLOCK_MONOTONIC_RAW, &start);
       assert (res==0);
       int j;
       for (j=0; j<n_tests; j++) {
 	error = 0;
 	long result = (funcs[i].func)(tests[j].str);
-	assert (!funcs[i].works ||
+	assert (
 		((error == 0 && tests[j].error == 0 && result == tests[j].result) ||
 		 (error != 0 && tests[j].error != 0))
 		);
       }
       struct timespec stop;
-      res = clock_gettime (CLOCK_MONOTONIC, &stop);
+      res = clock_gettime (CLOCK_MONOTONIC_RAW, &stop);
       assert (res==0);
       funcs[i].times[rep] = subtimes (stop, start);
     }
@@ -285,7 +284,7 @@ int main (int argc, char *argv[]) {
   generate_test ("-0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009999999999999999999999999999999");
 #endif
 
-#define RANGE 100000
+#define RANGE 20000
 
 #if 1
   {
@@ -298,9 +297,7 @@ int main (int argc, char *argv[]) {
       inc (str);
     }
   }
-#endif
 
-#if 1
   {
     long l = LONG_MIN + RANGE;
     char str[50];
@@ -311,9 +308,7 @@ int main (int argc, char *argv[]) {
       inc (str);
     }
   }
-#endif
 
-#if 1
   {
     long l = 0;
     char str[50];
@@ -324,9 +319,7 @@ int main (int argc, char *argv[]) {
       inc (str);
     }
   }
-#endif
 
-#if 1
   {
     long l = 0;
     char str[50];
@@ -343,7 +336,7 @@ int main (int argc, char *argv[]) {
   {
     srand (time(NULL));
     int i;
-    for (i=0; i<(10*1000*1000); i++) {
+    for (i=0; i<(2*1000*1000); i++) {
       char str[35];
       int pos = 0;
       if (rand()%2==0) {
@@ -370,11 +363,6 @@ int main (int argc, char *argv[]) {
   run_tests();
 
   int i;
-  printf ("ran, but didn't test:\n");
-  for (i=0; funcs[i].func; i++) {
-    if (!funcs[i].works) printf ("  %s\n", funcs[i].name);
-  }
-  printf ("tested:\n");
   for (i=0; funcs[i].func; i++) {
     if (funcs[i].works) {
       int j;
@@ -385,7 +373,7 @@ int main (int argc, char *argv[]) {
 	if (t<min) min = t;
 	if (t>max) max = t;
       }
-      printf ("  %lf %lf %s\n", min, max, funcs[i].name);
+      printf ("%lf %s\n", min, funcs[i].name);
     }
   }
 
