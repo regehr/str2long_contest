@@ -16,7 +16,7 @@ struct testcase {
   char str[TEST_STR_LEN];
 };
 
-#define REPS 10
+#define REPS 6
 
 struct fps {
   fp func;
