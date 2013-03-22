@@ -58,7 +58,6 @@ my @progs = (
     "bastian",
     "ethan_2",
     "renaud",
-    "robert_2",
     "till",
     "greg",
     "ben",
@@ -148,7 +147,7 @@ if (1) {
 		die unless ($found);
 	    }
 	}
-	print OF "$smallest $small_comp $small_opt $prog\n";
+	print OF "$smallest $comps{$small_comp} $small_opt $prog\n";
     }
     close OF;
 }
