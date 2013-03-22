@@ -91,7 +91,7 @@ static struct fps funcs[] = {
   // { str2long_dokoto, "dokoto", false }, // incorrect output
   // { str2long_dokoto_2, "dokoto_2", false }, // incorrect outptu 
   // { str2long_robert, "robert", false }, // incorrect output
-  { str2long_robert_2, "robert_2", true }, 
+  // { str2long_robert_2, "robert_2", false }, // fails for strlen > INT_MAX 
   { str2long_till, "till", true },
   // { str2long_gedare, "gedare", false }, // incorrect output
   // { str2long_gedare_2, "gedare_2", false }, // incorrect output
@@ -103,6 +103,7 @@ static struct fps funcs[] = {
   // { str2long_dario, "dario", false }, // incorrect output in 32-bit mode
   { str2long_ben, "ben", true },
   { str2long_davide, "davide", true },   
+  { str2long_davide, "davide_3", true },   
   { str2long_sidney, "sidney", true },   
   // { str2long_guillaume, "guillaume", false }, // incorrect output
   { str2long_libc, "libc", true },
@@ -183,12 +184,15 @@ int main (int argc, char *argv[]) {
   tests = (struct testcase *) malloc (MAX_TESTS * sizeof (struct testcase));
   assert (tests);
 
+  // #define HUGE_TEST 1
+
 #ifdef HUGE_TEST
   {
-#define L (9L * 1024 * 1024 * 1024)
+#define L (6L * 1024 * 1024 * 1024)
     char *s = (char *) malloc (L);
     assert (s);
     long i;
+
     for (i=0; i<L; i++) {
       s[i] = '0';
     }
@@ -200,6 +204,21 @@ int main (int argc, char *argv[]) {
       error = 0;
       long result = (funcs[i].func)(s);
       printf ("%s : %ld %d\n", funcs[i].name, result, error);
+      assert (result==-7 && error == 0);
+    }
+
+    for (i=0; i<L; i++) {
+      s[i] = '0';
+    }
+    s[L-1] = 0;
+    s[L-2] = 'z';
+    s[L-3] = '7';
+    for (i=0; funcs[i].func; i++) {
+      if (!funcs[i].works) continue;
+      error = 0;
+      long result = (funcs[i].func)(s);
+      printf ("%s : %ld %d\n", funcs[i].name, result, error);
+      assert (error == 1);
     }
   }
   return 0;

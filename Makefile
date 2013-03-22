@@ -1,5 +1,7 @@
-CC=clang # -fsanitize=integer -fno-sanitize=unsigned-integer-overflow
-CFLAGS=-O3 -Wall 
+#CC=clang -fsanitize=integer -fno-sanitize=unsigned-integer-overflow
+#CFLAGS=-O3 -Wall 
+
+CC=/opt/intel/bin/icc -fast
 
 #CC=gcc 
 #CFLAGS=-O -Wall -g
