@@ -103,7 +103,7 @@ static struct fps funcs[] = {
   // { str2long_dario, "dario", false }, // incorrect output in 32-bit mode
   { str2long_ben, "ben", true },
   { str2long_davide, "davide", true },   
-  { str2long_davide, "davide_3", true },   
+  { str2long_davide_3, "davide_3", true },   
   { str2long_sidney, "sidney", true },   
   // { str2long_guillaume, "guillaume", false }, // incorrect output
   { str2long_libc, "libc", true },

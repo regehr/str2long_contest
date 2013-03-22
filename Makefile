@@ -22,7 +22,7 @@ OBJS = 	daniel.o bernd.o pascal.o toby.o john.o \
 	adam_3.o ken_3.o dario.o dokoto_2.o gedare_2.o \
 	ben.o markus_2.o matthew_3.o robert_2.o ryanf_2.o \
 	ken_4.o adam_4.o davide.o sidney.o guillaume.o \
-	libc.o str2long_test.o
+	davide_3.o libc.o str2long_test.o
 
 all: str2long_test
 
